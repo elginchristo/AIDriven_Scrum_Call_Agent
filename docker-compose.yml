@@ -1,0 +1,154 @@
+# docker-compose.yml (Mac-optimized)
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: scrum-agent-api
+    restart: always
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mongodb
+      - redis
+    env_file:
+      - .env
+    volumes:
+      - ./app:/app/app:delegated  # Use delegated for better performance on Mac
+    networks:
+      - scrum-network
+    platform: linux/amd64  # Specify platform for M1 Macs
+
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: scrum-agent-worker
+    restart: always
+    command: celery -A celery_worker.worker worker --loglevel=info
+    depends_on:
+      - mongodb
+      - redis
+    env_file:
+      - .env
+    volumes:
+      - ./app:/app/app:delegated
+      - ./celery_worker:/app/celery_worker:delegated
+    networks:
+      - scrum-network
+    platform: linux/amd64
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: scrum-agent-scheduler
+    restart: always
+    command: celery -A celery_worker.worker beat --loglevel=info
+    depends_on:
+      - mongodb
+      - redis
+    env_file:
+      - .env
+    volumes:
+      - ./app:/app/app:delegated
+      - ./celery_worker:/app/celery_worker:delegated
+    networks:
+      - scrum-network
+    platform: linux/amd64
+
+  mongodb:
+    image: mongo:5.0
+    container_name: scrum-agent-mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+      - MONGO_INITDB_DATABASE=scrum_agent
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - scrum-network
+    platform: linux/amd64
+
+  redis:
+    image: redis:6.2-alpine
+    container_name: scrum-agent-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server
+    volumes:
+      - redis_data:/data
+    networks:
+      - scrum-network
+    platform: linux/amd64
+
+volumes:
+  mongodb_data:
+  redis_data:
+
+networks:
+  scrum-network:
+    driver: bridge
+
+
+# .env.example (updated for local development)
+# Core Settings
+ENV=development
+DEBUG=true
+API_PREFIX=/api
+CORS_ORIGINS=["http://localhost:3000", "http://localhost:8000"]
+LOG_LEVEL=INFO
+LOG_FORMAT=json
+
+# MongoDB
+DATABASE__MONGO_URI=mongodb://admin:password@mongodb:27017
+DATABASE__DATABASE_NAME=scrum_agent
+MONGODB_USERNAME=admin
+MONGODB_PASSWORD=password
+
+# Redis
+REDIS__HOST=redis
+REDIS__PORT=6379
+REDIS__PASSWORD=
+REDIS__DB=0
+REDIS_PASSWORD=
+
+# OpenAI
+OPENAI__API_KEY=your-openai-api-key
+
+# Google Cloud (you'll need to set up GCS credentials)
+GOOGLE_CLOUD__PROJECT_ID=your-google-project-id
+GOOGLE_CLOUD__CREDENTIALS_FILE=/app/credentials.json
+
+# Zoom (optional for development)
+ZOOM__CLIENT_ID=your-zoom-client-id
+ZOOM__CLIENT_SECRET=your-zoom-client-secret
+ZOOM__REDIRECT_URI=http://localhost:8000/api/auth/zoom/callback
+
+# JIRA (optional for development)
+JIRA__BASE_URL=https://your-org.atlassian.net
+JIRA__API_TOKEN=your-jira-api-token
+JIRA__USERNAME=your-jira-username
+
+# Email (optional for development)
+EMAIL__SMTP_SERVER=smtp.gmail.com
+EMAIL__SMTP_PORT=587
+EMAIL__USERNAME=your-email@gmail.com
+EMAIL__PASSWORD=your-app-password
+EMAIL__USE_TLS=true
+EMAIL__FROM_EMAIL=your-email@gmail.com
+
+# Celery
+CELERY__BROKER_URL=redis://redis:6379/1
+CELERY__RESULT_BACKEND=redis://redis:6379/2
+
+# Security
+SECURITY__SECRET_KEY=generate-a-secure-random-key
+SECURITY__TOKEN_EXPIRE_MINUTES=1440
+Improve

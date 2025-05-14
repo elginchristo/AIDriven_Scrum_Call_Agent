@@ -1,0 +1,91 @@
+# Project Structure
+'''
+scrum_agent/
+├── app/
+│   ├── __init__.py
+│   ├── main.py                # FastAPI application
+│   ├── config.py              # Configuration management
+│   ├── dependencies.py        # Dependency injection
+│   ├── models/                # Database models
+│   │   ├── __init__.py
+│   │   ├── project.py
+│   │   ├── sprint.py
+│   │   ├── user_story.py
+│   │   ├── blocker.py
+│   │   ├── team_capacity.py
+│   │   ├── velocity.py
+│   │   ├── contact.py
+│   │   ├── sprint_call.py
+│   │   └── scheduled_call.py
+│   ├── schemas/               # Pydantic schemas
+│   │   ├── __init__.py
+│   │   ├── project.py
+│   │   ├── sprint.py
+│   │   ├── user_story.py
+│   │   ├── blocker.py
+│   │   ├── team_capacity.py
+│   │   ├── velocity.py
+│   │   ├── contact.py
+│   │   ├── sprint_call.py
+│   │   └── scheduled_call.py
+│   ├── api/                   # API endpoints
+│   │   ├── __init__.py
+│   │   ├── endpoints/
+│   │   │   ├── __init__.py
+│   │   │   ├── projects.py
+│   │   │   ├── sprints.py
+│   │   │   ├── stories.py
+│   │   │   ├── schedules.py
+│   │   │   └── reports.py
+│   │   └── router.py          # Main router
+│   ├── agents/                # AI agent implementations
+│   │   ├── __init__.py
+│   │   ├── base_agent.py      # Abstract base agent
+│   │   ├── driving_call.py    # Meeting driver agent
+│   │   ├── user_validation.py # Response validation
+│   │   ├── blocker.py         # Blocker processing
+│   │   ├── critic.py          # Delay critique
+│   │   ├── missing_developer.py # Missing team member
+│   │   ├── overall.py         # Aggregation agent
+│   │   ├── mom.py             # Minutes of meeting
+│   │   └── current_status.py  # Status reporting
+│   ├── services/              # Service implementations
+│   │   ├── __init__.py
+│   │   ├── orchestrator.py    # Agent orchestration
+│   │   ├── scheduler.py       # Call scheduling
+│   │   ├── voice.py           # Voice processing
+│   │   ├── platform.py        # Meeting platform
+│   │   ├── jira.py            # JIRA integration
+│   │   ├── email.py           # Email service
+│   │   └── database.py        # DB connection management
+│   └── utils/                 # Utilities
+│       ├── __init__.py
+│       ├── logger.py          # Logging setup
+│       ├── security.py        # Auth & encryption
+│       ├── redis.py           # Redis helper
+│       └── constants.py       # System constants
+├── celery_worker/             # Background task worker
+│   ├── __init__.py
+│   ├── worker.py              # Celery worker setup
+│   └── tasks.py               # Task definitions
+├── tests/                     # Test suite
+│   ├── __init__.py
+│   ├── conftest.py            # Test configuration
+│   ├── test_agents/           # Agent tests
+│   │   ├── __init__.py
+│   │   └── ...
+│   ├── test_api/              # API tests
+│   │   ├── __init__.py
+│   │   └── ...
+│   └── test_services/         # Service tests
+│       ├── __init__.py
+│       └── ...
+├── alembic/                   # Database migrations
+│   ├── versions/
+│   └── ...
+├── .env.example               # Environment variables template
+├── requirements.txt           # Dependencies
+├── Dockerfile                 # Container definition
+├── docker-compose.yml         # Multi-container setup
+└── README.md                  # Documentation
+'''

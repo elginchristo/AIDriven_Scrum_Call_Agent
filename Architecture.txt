@@ -1,0 +1,61 @@
+# AI-Driven Scrum Call Agent - System Architecture (Python)
+
+## System Components
+
+1. **Core Service Layer**
+   - Main Application Server (FastAPI)
+   - Agent Orchestration Service
+   - Scheduler Service (APScheduler)
+
+2. **Agent Modules**
+   - DrivingCall Agent
+   - UserValidation Agent
+   - Blocker Agent
+   - Critic Agent
+   - MissingDeveloper Agent
+   - Overall Agent
+   - MOM Agent
+   - CurrentStatus Agent
+
+3. **Integration Services**
+   - Voice Processing Service (Google Cloud STT/TTS)
+   - Platform Integration Service (Zoom API)
+   - Task Management Integration (JIRA API)
+   - Email Service
+
+4. **Data Layer**
+   - Database (MongoDB with PyMongo)
+   - Redis for inter-agent communication
+
+## Technical Stack
+
+- **Backend Framework**: FastAPI (high-performance async Python web framework)
+- **Database**: MongoDB with PyMongo
+- **Task Queue**: Celery with Redis as broker
+- **Speech Processing**: Google Cloud Speech-to-Text & Text-to-Speech
+- **AI Framework**: OpenAI API for agent intelligence
+- **Authentication**: JWT for API security
+- **Scheduling**: APScheduler for managing scheduled jobs
+- **Messaging**: Redis for inter-agent communication
+- **Logging**: Python logging with structured JSON output
+- **Testing**: pytest for unit and integration testing
+- **CI/CD**: GitHub Actions for continuous integration
+
+## Data Flow
+
+1. Scheduler triggers a scrum call based on configured time
+2. Core service initializes all required agents
+3. Platform Integration Service connects to the meeting platform
+4. DrivingCall Agent conducts the meeting
+5. Voice Processing Service handles all speech conversions
+6. Agent modules process specific aspects of the meeting
+7. Overall Agent aggregates all information
+8. MOM and CurrentStatus agents generate reports
+9. Data is stored in databases and sent back to frontend
+
+## Security & Privacy Considerations
+
+- All credentials encrypted at rest
+- Audio data processed in-memory only
+- Compliance with data protection regulations
+- Role-based access control for all APIs

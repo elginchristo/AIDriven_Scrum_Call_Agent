@@ -1,0 +1,55 @@
+# requirements.txt - Complete list with descriptions
+
+# Core Web Framework
+fastapi                   # Modern async web framework
+uvicorn                   # ASGI server for FastAPI
+pydantic                 # Data validation and settings management
+pydantic-settings          # Settings management for Pydantic v2
+python-multipart           # Form data parsing
+email-validator           # Email validation
+
+# Database Drivers
+pymongo                    # MongoDB driver
+motor                     # Async MongoDB driver
+beanie                   # ODM for MongoDB (optional, can remove if not using)
+
+# Authentication & Security
+python-jose                # JWT implementation
+passlib                    # Password hashing
+bcrypt                     # Bcrypt hashing algorithm
+
+# Task Queue & Scheduling
+celery                     # Distributed task queue
+redis                     # Redis client
+apscheduler               # Job scheduling
+croniter                  # Cron expression parsing
+
+# HTTP Clients
+httpx                    # Async HTTP client
+aiohttp                   # Another async HTTP client
+
+# AI/ML Integration
+openai                    # OpenAI API client
+chromadb                  # Vector database (optional, can remove if not using)
+
+# Google Cloud Services
+google-cloud-speech       # Speech-to-text
+google-cloud-texttospeech # Text-to-speech
+google-cloud-storage       # Cloud storage
+
+# Web Automation
+selenium                 # Browser automation
+webdriver-manager        # ChromeDriver management
+
+# Utilities
+python-dotenv           # Environment variable management
+tenacity                 # Retry logic
+structlog                # Structured logging
+pytz                    # Timezone support
+ujson                     # Fast JSON parsing
+
+# Development & Testing
+pytest                    # Testing framework
+pytest-asyncio           # Async test support
+pytest-cov               # Code coverage
+pytest-mock               # Mocking support
