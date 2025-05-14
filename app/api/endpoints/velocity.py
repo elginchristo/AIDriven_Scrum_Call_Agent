@@ -3,7 +3,6 @@ from typing import List, Optional
 from fastapi import APIRouter, HTTPException, Depends, status
 from app.schemas.velocity import VelocityHistoryCreate, VelocityHistoryUpdate, VelocityHistoryResponse
 from app.services.database import get_database
-from app.utils.security import get_current_user
 
 router = APIRouter()
 
@@ -11,7 +10,6 @@ router = APIRouter()
 @router.post("/", response_model=VelocityHistoryResponse, status_code=status.HTTP_201_CREATED)
 async def create_velocity_history(
         velocity: VelocityHistoryCreate,
-        current_user: dict = Depends(get_current_user),
         db=Depends(get_database)
 ):
     """Create a new velocity history entry."""
@@ -65,7 +63,6 @@ async def create_velocity_history(
 async def get_velocity_history(
         project_id: Optional[str] = None,
         sprint_id: Optional[str] = None,
-        current_user: dict = Depends(get_current_user),
         db=Depends(get_database)
 ):
     """Get all velocity history with optional filters."""
@@ -85,7 +82,6 @@ async def get_velocity_history(
 @router.get("/{velocity_id}", response_model=VelocityHistoryResponse)
 async def get_velocity_history_entry(
         velocity_id: str,
-        current_user: dict = Depends(get_current_user),
         db=Depends(get_database)
 ):
     """Get a specific velocity history entry by ID."""
@@ -106,7 +102,6 @@ async def get_velocity_history_entry(
 async def get_average_velocity(
         project_id: str,
         num_sprints: int = 3,
-        current_user: dict = Depends(get_current_user),
         db=Depends(get_database)
 ):
     """Get average velocity for a project over the last N sprints."""
@@ -139,7 +134,6 @@ async def get_average_velocity(
 async def update_velocity_history(
         velocity_id: str,
         velocity_update: VelocityHistoryUpdate,
-        current_user: dict = Depends(get_current_user),
         db=Depends(get_database)
 ):
     """Update a velocity history entry."""
@@ -185,7 +179,6 @@ async def update_velocity_history(
 @router.delete("/{velocity_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_velocity_history(
         velocity_id: str,
-        current_user: dict = Depends(get_current_user),
         db=Depends(get_database)
 ):
     """Delete a velocity history entry."""

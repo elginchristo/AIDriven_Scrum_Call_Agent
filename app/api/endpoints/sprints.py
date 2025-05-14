@@ -3,7 +3,6 @@ from typing import List, Optional
 from fastapi import APIRouter, HTTPException, Depends, status
 from app.schemas.sprint import SprintCreate, SprintUpdate, SprintResponse
 from app.services.database import get_database
-from app.utils.security import get_current_user
 
 router = APIRouter()
 
@@ -11,7 +10,6 @@ router = APIRouter()
 @router.post("/", response_model=SprintResponse, status_code=status.HTTP_201_CREATED)
 async def create_sprint(
         sprint: SprintCreate,
-        current_user: dict = Depends(get_current_user),
         db=Depends(get_database)
 ):
     """Create a new sprint."""
@@ -72,7 +70,6 @@ async def create_sprint(
 async def get_sprints(
         project_id: Optional[str] = None,
         current: Optional[bool] = None,
-        current_user: dict = Depends(get_current_user),
         db=Depends(get_database)
 ):
     """Get all sprints with optional filters."""
@@ -98,7 +95,6 @@ async def get_sprints(
 async def get_sprint(
         sprint_id: str,
         project_id: str,
-        current_user: dict = Depends(get_current_user),
         db=Depends(get_database)
 ):
     """Get a specific sprint by ID."""
@@ -122,7 +118,6 @@ async def update_sprint(
         sprint_id: str,
         project_id: str,
         sprint_update: SprintUpdate,
-        current_user: dict = Depends(get_current_user),
         db=Depends(get_database)
 ):
     """Update a sprint."""

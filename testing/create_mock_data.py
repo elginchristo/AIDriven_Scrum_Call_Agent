@@ -305,7 +305,7 @@ class MockDataCreator:
             self.display_summary()
 
             # Save created data for reference
-            with open("mock_data_ids.json", "w") as f:
+            with open("../mock_data_ids.json", "w") as f:
                 json.dump(self.created_data, f, indent=2)
             print("\n💾 Saved all created IDs to: mock_data_ids.json")
 

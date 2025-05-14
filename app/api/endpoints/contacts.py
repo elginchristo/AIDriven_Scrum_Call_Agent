@@ -1,9 +1,8 @@
-# app/api/endpoints/contacts.py
+# app/api/endpoints/contacts.py - Contacts endpoint without authentication
 from typing import List, Optional
 from fastapi import APIRouter, HTTPException, Depends, status
 from app.schemas.contact import ContactDetailsCreate, ContactDetailsUpdate, ContactDetailsResponse
 from app.services.database import get_database
-from app.utils.security import get_current_user
 
 router = APIRouter()
 
@@ -11,7 +10,6 @@ router = APIRouter()
 @router.post("/", response_model=ContactDetailsResponse, status_code=status.HTTP_201_CREATED)
 async def create_contact(
         contact: ContactDetailsCreate,
-        current_user: dict = Depends(get_current_user),
         db=Depends(get_database)
 ):
     """Create a new contact."""
@@ -46,7 +44,6 @@ async def create_contact(
 async def get_contacts(
         team_name: Optional[str] = None,
         name: Optional[str] = None,
-        current_user: dict = Depends(get_current_user),
         db=Depends(get_database)
 ):
     """Get all contacts with optional filters."""
@@ -66,7 +63,6 @@ async def get_contacts(
 @router.get("/{contact_id}", response_model=ContactDetailsResponse)
 async def get_contact(
         contact_id: str,
-        current_user: dict = Depends(get_current_user),
         db=Depends(get_database)
 ):
     """Get a specific contact by ID."""
@@ -87,7 +83,6 @@ async def get_contact(
 async def update_contact(
         contact_id: str,
         contact_update: ContactDetailsUpdate,
-        current_user: dict = Depends(get_current_user),
         db=Depends(get_database)
 ):
     """Update a contact."""
@@ -121,7 +116,6 @@ async def update_contact(
 @router.delete("/{contact_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_contact(
         contact_id: str,
-        current_user: dict = Depends(get_current_user),
         db=Depends(get_database)
 ):
     """Delete a contact."""

@@ -3,7 +3,6 @@ from typing import List, Optional
 from fastapi import APIRouter, HTTPException, Depends, status
 from app.schemas.team_capacity import TeamCapacityCreate, TeamCapacityUpdate, TeamCapacityResponse
 from app.services.database import get_database
-from app.utils.security import get_current_user
 
 router = APIRouter()
 
@@ -11,7 +10,6 @@ router = APIRouter()
 @router.post("/", response_model=TeamCapacityResponse, status_code=status.HTTP_201_CREATED)
 async def create_team_capacity(
         capacity: TeamCapacityCreate,
-        current_user: dict = Depends(get_current_user),
         db=Depends(get_database)
 ):
     """Create a new team capacity entry."""
@@ -69,7 +67,6 @@ async def get_team_capacities(
         project_id: Optional[str] = None,
         sprint_id: Optional[str] = None,
         team_member: Optional[str] = None,
-        current_user: dict = Depends(get_current_user),
         db=Depends(get_database)
 ):
     """Get all team capacities with optional filters."""
@@ -91,7 +88,6 @@ async def get_team_capacities(
 @router.get("/{capacity_id}", response_model=TeamCapacityResponse)
 async def get_team_capacity(
         capacity_id: str,
-        current_user: dict = Depends(get_current_user),
         db=Depends(get_database)
 ):
     """Get a specific team capacity by ID."""
@@ -112,7 +108,6 @@ async def get_team_capacity(
 async def update_team_capacity(
         capacity_id: str,
         capacity_update: TeamCapacityUpdate,
-        current_user: dict = Depends(get_current_user),
         db=Depends(get_database)
 ):
     """Update a team capacity."""
@@ -152,7 +147,6 @@ async def update_team_capacity(
 @router.delete("/{capacity_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_team_capacity(
         capacity_id: str,
-        current_user: dict = Depends(get_current_user),
         db=Depends(get_database)
 ):
     """Delete a team capacity."""

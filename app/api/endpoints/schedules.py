@@ -1,4 +1,4 @@
-# app/api/endpoints/schedules.py
+# app/api/endpoints/schedules.py - Fixed version
 from typing import List, Optional
 from datetime import datetime
 from fastapi import APIRouter, HTTPException, Depends, status
@@ -11,7 +11,6 @@ from app.schemas.scheduled_call import (
 from app.services.database import get_database
 from app.services.scheduler import calculate_next_run
 from app.models.scheduled_call import CallStatus, PlatformType
-from app.utils.security import get_current_user
 
 router = APIRouter()
 
@@ -19,7 +18,6 @@ router = APIRouter()
 @router.post("/", response_model=ScheduledCallResponse, status_code=status.HTTP_201_CREATED)
 async def create_scheduled_call(
         call: ScheduledCallCreate,
-        current_user: dict = Depends(get_current_user),
         db=Depends(get_database)
 ):
     """Create a new scheduled call."""
@@ -51,7 +49,9 @@ async def create_scheduled_call(
             detail="Failed to retrieve created scheduled call"
         )
 
-    return ScheduledCallInDB(**created_call).dict()
+    # Convert MongoDB document to response model
+    created_call["id"] = str(created_call.pop("_id"))
+    return created_call
 
 
 @router.get("/", response_model=List[ScheduledCallResponse])
@@ -59,7 +59,6 @@ async def get_scheduled_calls(
         team_name: Optional[str] = None,
         project_name: Optional[str] = None,
         status: Optional[str] = None,
-        current_user: dict = Depends(get_current_user),
         db=Depends(get_database)
 ):
     """Get all scheduled calls with optional filters."""
@@ -73,15 +72,21 @@ async def get_scheduled_calls(
         query["status"] = status
 
     # Retrieve calls
-    calls = await db.scheduled_calls.find(query).to_list(length=100)
+    cursor = db.scheduled_calls.find(query)
+    calls = await cursor.to_list(length=100)
 
-    return [ScheduledCallInDB(**call).dict() for call in calls]
+    # Convert MongoDB documents to response models
+    response_calls = []
+    for call in calls:
+        call["id"] = str(call.pop("_id"))
+        response_calls.append(call)
+
+    return response_calls
 
 
 @router.get("/{call_id}", response_model=ScheduledCallResponse)
 async def get_scheduled_call(
         call_id: str,
-        current_user: dict = Depends(get_current_user),
         db=Depends(get_database)
 ):
     """Get a specific scheduled call by ID."""
@@ -95,14 +100,15 @@ async def get_scheduled_call(
             detail="Scheduled call not found"
         )
 
-    return ScheduledCallInDB(**call).dict()
+    # Convert MongoDB document to response model
+    call["id"] = str(call.pop("_id"))
+    return call
 
 
 @router.put("/{call_id}", response_model=ScheduledCallResponse)
 async def update_scheduled_call(
         call_id: str,
         call_update: ScheduledCallUpdate,
-        current_user: dict = Depends(get_current_user),
         db=Depends(get_database)
 ):
     """Update a scheduled call."""
@@ -133,13 +139,14 @@ async def update_scheduled_call(
     # Retrieve and return the updated call
     updated_call = await db.scheduled_calls.find_one({"_id": ObjectId(call_id)})
 
-    return ScheduledCallInDB(**updated_call).dict()
+    # Convert MongoDB document to response model
+    updated_call["id"] = str(updated_call.pop("_id"))
+    return updated_call
 
 
 @router.delete("/{call_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_scheduled_call(
         call_id: str,
-        current_user: dict = Depends(get_current_user),
         db=Depends(get_database)
 ):
     """Delete a scheduled call."""

@@ -3,7 +3,6 @@ from typing import List, Optional
 from fastapi import APIRouter, HTTPException, Depends, status
 from app.schemas.user_story import UserStoryCreate, UserStoryUpdate, UserStoryResponse
 from app.services.database import get_database
-from app.utils.security import get_current_user
 
 router = APIRouter()
 
@@ -11,7 +10,6 @@ router = APIRouter()
 @router.post("/", response_model=UserStoryResponse, status_code=status.HTTP_201_CREATED)
 async def create_story(
         story: UserStoryCreate,
-        current_user: dict = Depends(get_current_user),
         db=Depends(get_database)
 ):
     """Create a new user story."""
@@ -78,7 +76,6 @@ async def get_stories(
         sprint_id: Optional[str] = None,
         assignee: Optional[str] = None,
         status: Optional[str] = None,
-        current_user: dict = Depends(get_current_user),
         db=Depends(get_database)
 ):
     """Get all user stories with optional filters."""
@@ -104,7 +101,6 @@ async def update_story(
         story_id: str,
         project_id: str,
         story_update: UserStoryUpdate,
-        current_user: dict = Depends(get_current_user),
         db=Depends(get_database)
 ):
     """Update a user story."""

@@ -1,9 +1,8 @@
-# app/api/endpoints/projects.py
+# app/api/endpoints/projects.py - Projects endpoint without authentication
 from typing import List, Optional
 from fastapi import APIRouter, HTTPException, Depends, status
 from app.schemas.project import ProjectCreate, ProjectUpdate, ProjectResponse
 from app.services.database import get_database
-from app.utils.security import get_current_user
 
 router = APIRouter()
 
@@ -11,7 +10,6 @@ router = APIRouter()
 @router.post("/", response_model=ProjectResponse, status_code=status.HTTP_201_CREATED)
 async def create_project(
         project: ProjectCreate,
-        current_user: dict = Depends(get_current_user),
         db=Depends(get_database)
 ):
     """Create a new project."""
@@ -49,7 +47,6 @@ async def create_project(
 async def get_projects(
         project_name: Optional[str] = None,
         project_type: Optional[str] = None,
-        current_user: dict = Depends(get_current_user),
         db=Depends(get_database)
 ):
     """Get all projects with optional filters."""
@@ -69,7 +66,6 @@ async def get_projects(
 @router.get("/{project_id}", response_model=ProjectResponse)
 async def get_project(
         project_id: str,
-        current_user: dict = Depends(get_current_user),
         db=Depends(get_database)
 ):
     """Get a specific project by ID."""
@@ -88,7 +84,6 @@ async def get_project(
 async def update_project(
         project_id: str,
         project_update: ProjectUpdate,
-        current_user: dict = Depends(get_current_user),
         db=Depends(get_database)
 ):
     """Update a project."""
@@ -121,7 +116,6 @@ async def update_project(
 @router.delete("/{project_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_project(
         project_id: str,
-        current_user: dict = Depends(get_current_user),
         db=Depends(get_database)
 ):
     """Delete a project."""

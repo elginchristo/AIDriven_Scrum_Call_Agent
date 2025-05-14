@@ -3,7 +3,6 @@ from typing import List, Optional
 from fastapi import APIRouter, HTTPException, Depends, status
 from app.schemas.sprint_call import SprintCallResponse
 from app.services.database import get_database
-from app.utils.security import get_current_user
 
 router = APIRouter()
 
@@ -14,7 +13,6 @@ async def get_sprint_calls(
         project_name: Optional[str] = None,
         start_date: Optional[str] = None,
         end_date: Optional[str] = None,
-        current_user: dict = Depends(get_current_user),
         db=Depends(get_database)
 ):
     """Get all sprint call reports with optional filters."""
@@ -46,7 +44,6 @@ async def get_sprint_calls(
 @router.get("/sprint-calls/{call_id}", response_model=SprintCallResponse)
 async def get_sprint_call(
         call_id: str,
-        current_user: dict = Depends(get_current_user),
         db=Depends(get_database)
 ):
     """Get a specific sprint call report by ID."""
@@ -66,7 +63,6 @@ async def get_sprint_call(
 @router.get("/latest-status/{team_name}")
 async def get_latest_status(
         team_name: str,
-        current_user: dict = Depends(get_current_user),
         db=Depends(get_database)
 ):
     """Get the latest status report for a team."""
