@@ -1,4 +1,4 @@
-# app/services/voice.py - Updated with proper Google Cloud handling
+# app/services/voice.py - Fixed with proper Google Cloud voice parameters
 import logging
 import os
 import tempfile
@@ -58,23 +58,28 @@ class VoiceProcessingService:
             return b"mock_audio_content"
 
         try:
-            # Default voice parameters
+            # Default voice parameters - using a specific voice instead of NEUTRAL gender
             if voice_params is None:
                 voice_params = {
                     "language_code": "en-US",
-                    "ssml_gender": texttospeech.SsmlVoiceGender.NEUTRAL,
-                    "name": "en-US-Neural2-D"
+                    "name": "en-US-Standard-D"  # Specific male voice instead of gender-neutral
                 }
 
             # Create synthesis input
             synthesis_input = texttospeech.SynthesisInput(text=text)
 
-            # Configure voice
-            voice = texttospeech.VoiceSelectionParams(
-                language_code=voice_params["language_code"],
-                ssml_gender=voice_params["ssml_gender"],
-                name=voice_params.get("name")
-            )
+            # Configure voice - use name-based selection when available
+            if "name" in voice_params:
+                voice = texttospeech.VoiceSelectionParams(
+                    language_code=voice_params["language_code"],
+                    name=voice_params["name"]
+                )
+            else:
+                # Fallback to gender-based selection with MALE/FEMALE
+                voice = texttospeech.VoiceSelectionParams(
+                    language_code=voice_params.get("language_code", "en-US"),
+                    ssml_gender=texttospeech.SsmlVoiceGender.MALE  # Use MALE instead of NEUTRAL
+                )
 
             # Configure audio output
             audio_config = texttospeech.AudioConfig(
@@ -114,8 +119,16 @@ class VoiceProcessingService:
             }
 
         try:
+            # If audio content is too small, it might be a mock or error
+            if len(audio_content) < 100:
+                logger.warning(f"Audio content too small: {len(audio_content)} bytes")
+                return {
+                    "transcript": "",
+                    "segments": []
+                }
+
             # Upload audio to GCS
-            filename = f"speech-{os.urandom(8).hex()}.wav"
+            filename = f"speech-{os.urandom(8).hex()}.mp3"  # Use mp3 extension
             blob = self.storage_client.bucket(self.bucket_name).blob(filename)
             blob.upload_from_string(audio_content)
             gcs_uri = f"gs://{self.bucket_name}/{filename}"
@@ -132,8 +145,7 @@ class VoiceProcessingService:
                 }
 
             config = speech.RecognitionConfig(
-                encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
-                sample_rate_hertz=16000,
+                encoding=speech.RecognitionConfig.AudioEncoding.MP3,  # Change from LINEAR16 to MP3
                 language_code=config_params["language_code"],
                 enable_speaker_diarization=config_params["enable_speaker_diarization"],
                 diarization_speaker_count=config_params["diarization_speaker_count"],
@@ -147,7 +159,7 @@ class VoiceProcessingService:
             # Perform recognition
             operation = self.speech_client.long_running_recognize(config=config, audio=audio)
             logger.info("Waiting for speech recognition to complete...")
-            response = operation.result()
+            response = operation.result(timeout=300)  # 5 minute timeout
 
             # Process results
             result = self._process_diarization(response)

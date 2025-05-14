@@ -1,11 +1,11 @@
-# app/agents/base_agent.py - Corrected base agent
+# app/agents/base_agent.py - Updated for OpenAI v1.0+
 import logging
 import json
 import asyncio
 from abc import ABC, abstractmethod
 from redis import Redis
 from app.config import settings
-import openai
+from openai import AsyncOpenAI
 
 logger = logging.getLogger(__name__)
 
@@ -23,10 +23,11 @@ class BaseAgent(ABC):
         self.call_id = call_id
         self.redis = redis_client
 
-        # Set up OpenAI client
-        openai.api_key = settings.OPENAI.API_KEY
-        if settings.OPENAI.ORGANIZATION:
-            openai.organization = settings.OPENAI.ORGANIZATION
+        # Set up OpenAI client (new v1.0+ syntax)
+        self.openai_client = AsyncOpenAI(
+            api_key=settings.OPENAI.API_KEY,
+            organization=settings.OPENAI.ORGANIZATION if hasattr(settings.OPENAI, 'ORGANIZATION') and settings.OPENAI.ORGANIZATION else None
+        )
 
     async def store_data(self, key, data, expiry=3600):
         """Store data in Redis."""
@@ -59,11 +60,12 @@ class BaseAgent(ABC):
             logger.error(f"Failed to delete data from Redis: {str(e)}")
 
     async def call_openai(self, messages, model=None, temperature=0.2, max_tokens=2000):
-        """Call the OpenAI API."""
+        """Call the OpenAI API using the new v1.0+ async client."""
         try:
             model = model or settings.OPENAI.MODEL
 
-            response = await openai.ChatCompletion.acreate(
+            # Use the new async OpenAI client
+            response = await self.openai_client.chat.completions.create(
                 model=model,
                 messages=messages,
                 temperature=temperature,
@@ -80,4 +82,3 @@ class BaseAgent(ABC):
     async def process(self, *args, **kwargs):
         """Process data. To be implemented by subclasses."""
         pass
-
